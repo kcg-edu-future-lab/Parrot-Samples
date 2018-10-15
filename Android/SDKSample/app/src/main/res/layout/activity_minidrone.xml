@@ -169,4 +169,32 @@
         android:layout_alignRight="@+id/gazDownBt"
         android:layout_alignEnd="@+id/gazDownBt"
         android:gravity="center_horizontal"/>
+
+    <SeekBar
+        android:id="@+id/straightBar"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="180dp"
+        android:max="5"
+        android:progress="2" />
+
+    <SeekBar
+        android:id="@+id/turnBar"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView2"
+        android:layout_centerHorizontal="true"
+        android:max="10"
+        android:progress="5" />
+
+    <Button
+        android:id="@+id/goTurnButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="119dp"
+        android:text="Go and Turn" />
 </RelativeLayout>

@@ -4,11 +4,13 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_MINIDRONE_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
@@ -239,6 +241,55 @@ public class MiniDroneActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.goTurnButton).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        v.setPressed(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        v.setPressed(false);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                if (event.getAction() != MotionEvent.ACTION_DOWN) return true;
+
+                final SeekBar straightBar = (SeekBar)findViewById(R.id.straightBar);
+                final SeekBar turnBar = (SeekBar)findViewById(R.id.turnBar);
+
+                final int straightValue = straightBar.getProgress();
+                final int turnValue = turnBar.getProgress() - turnBar.getMax() / 2;
+
+                mMiniDrone.setPitch((byte) 30);
+                mMiniDrone.setFlag((byte) 1);
+
+                Runnable turn = new Runnable() {
+                    @Override
+                    public void run() {
+                        mMiniDrone.setPitch((byte) 0);
+                        mMiniDrone.setRoll((byte) (Math.signum(turnValue) * 30)); // Right is positive.
+                    }
+                };
+                Runnable stop = new Runnable() {
+                    @Override
+                    public void run() {
+                        mMiniDrone.setRoll((byte) 0);
+                        mMiniDrone.setFlag((byte) 0);
+                    }
+                };
+
+                setTimer(1000 * straightValue, turn);
+                setTimer(1000 * (straightValue + Math.abs(turnValue)), stop);
+
+                return true;
+            }
+        });
+
         findViewById(R.id.forwardBt).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -340,6 +391,11 @@ public class MiniDroneActivity extends AppCompatActivity {
         });
 
         mBatteryLabel = (TextView) findViewById(R.id.batteryLabel);
+    }
+
+    private static void setTimer(long delayMillis, Runnable runnable) {
+        final Handler handler = new Handler();
+        handler.postDelayed(runnable, delayMillis);
     }
 
     private final MiniDrone.Listener mMiniDroneListener = new MiniDrone.Listener() {
